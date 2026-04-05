@@ -40,15 +40,25 @@ const loginUser = async (req, res) => {
 // CREATE USER
 const createUser = async (req, res) => {
   try {
-    const { username, role, circuitCourt } = req.body;
+    const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
+    const role = typeof req.body.role === 'string' ? req.body.role : '';
+    const circuitCourt = typeof req.body.circuitCourt === 'string' ? req.body.circuitCourt.trim() : '';
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
+
+    if (!username || !role || !password) {
+      return res.status(400).json({ msg: 'Username, role, and password are required' });
+    }
+
+    if (role === 'Circuit Clerk' && !circuitCourt) {
+      return res.status(400).json({ msg: 'Circuit court is required for Circuit Clerk' });
+    }
 
     const userExists = await User.findOne({ username });
     if (userExists) {
       return res.status(400).json({ msg: 'Username already exists' });
     }
 
-    const generatedPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       username,
@@ -62,7 +72,6 @@ const createUser = async (req, res) => {
     res.status(201).json({
       msg: 'User created successfully',
       username: newUser.username,
-      password: generatedPassword,
     });
   } catch (error) {
     res.status(500).json({ msg: 'Server error', error: error.message });
