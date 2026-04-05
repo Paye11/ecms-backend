@@ -31,6 +31,14 @@ app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, 'uploads'); // ← Add ../
 if (!fs.existsSync(uploadDir)) {
