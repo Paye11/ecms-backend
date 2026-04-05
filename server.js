@@ -20,7 +20,15 @@ const civilDocketRoutes = require('./routes/civilDocket');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 // Create uploads directory if it doesn't exist
@@ -64,10 +72,7 @@ app.use('/api/court-fees', courtFeeRoutes);
 app.use('/uploads', express.static(uploadDir));
 // Add this line with the other static file serving
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 .then(() => {
   console.log('✅ MongoDB connected');
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
