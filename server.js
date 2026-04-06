@@ -32,7 +32,7 @@ app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.send('Sever is running');
 });
 
 app.get("/health", (req, res) => {
