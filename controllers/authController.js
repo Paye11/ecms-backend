@@ -53,9 +53,9 @@ const createUser = async (req, res) => {
       return res.status(400).json({ msg: 'Circuit court is required for Circuit Clerk' });
     }
 
-    const userExists = await User.findOne({ username });
+    const userExists = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
     if (userExists) {
-      return res.status(400).json({ msg: 'Username already exists' });
+      return res.status(400).json({ msg: `Username '${username}' already exists` });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -74,6 +74,11 @@ const createUser = async (req, res) => {
       username: newUser.username,
     });
   } catch (error) {
+    console.error("Create user error:", error);
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0];
+      return res.status(400).json({ msg: `${field === 'username' ? 'Username' : field} already exists` });
+    }
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
